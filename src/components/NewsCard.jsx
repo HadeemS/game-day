@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import '../styles/cards.css'
 
 export default function NewsCard({ news }) {
@@ -7,8 +8,8 @@ export default function NewsCard({ news }) {
         <img src={news.image} alt={news.alt} />
       </div>
       <div className="actions">
-        <a className="btn" href={news.previewLink}>Open preview</a>
-        <a className="btn ghost" href={news.newsLink}>Team news</a>
+        <Link className="btn" to={news.previewLink}>Open preview</Link>
+        <Link className="btn ghost" to={news.newsLink}>Team news</Link>
       </div>
       <h3>{news.title}</h3>
       <p>{news.description}</p>

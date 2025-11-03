@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { assetPath } from '../utils/assetPath'
 
 export default function Favorites(){
@@ -12,8 +13,8 @@ export default function Favorites(){
             <img src={assetPath('images/falconslogo.png')} alt="Atlanta Falcons crest" />
           </div>
           <div className="actions">
-            <a className="btn" href="/team/atlanta-falcons">Open preview</a>
-            <a className="btn ghost" href="/team/atlanta-falcons/news">Team news</a>
+            <Link className="btn" to="/team/atlanta-falcons">Open preview</Link>
+            <Link className="btn ghost" to="/team/atlanta-falcons/news">Team news</Link>
           </div>
           <h3>Atlanta Falcons</h3>
           <p>Pinned</p>
@@ -24,8 +25,8 @@ export default function Favorites(){
             <img src={assetPath('images/united.png')} alt="Manchester United crest" />
           </div>
           <div className="actions">
-            <a className="btn" href="/team/manchester-united">Open preview</a>
-            <a className="btn ghost" href="/team/manchester-united/news">Team news</a>
+            <Link className="btn" to="/team/manchester-united">Open preview</Link>
+            <Link className="btn ghost" to="/team/manchester-united/news">Team news</Link>
           </div>
           <h3>Manchester United</h3>
           <p>Pinned</p>
