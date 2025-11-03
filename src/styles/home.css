@@ -1,0 +1,20 @@
+/* Home Page Specific Styles */
+.project-links {
+  margin: 32px 0;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.project-links__container {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.highlights-section {
+  margin: 32px 0;
+}

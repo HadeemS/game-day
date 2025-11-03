@@ -1,0 +1,14 @@
+[
+{
+"name": "Atlanta Falcons",
+"league": "NFL",
+"image": "/images/falcons.jpg",
+"blurb": "Rise Up! Explore the Birds of Prey page for roster notes, history, and more."
+},
+{
+"name": "Atlanta Braves",
+"league": "MLB",
+"image": "/images/braves.jpg",
+"blurb": "Chop On. See season storylines and franchise milestones on Powerhouses."
+}
+]

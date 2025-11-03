@@ -1,0 +1,117 @@
+/* Slideshow Component Styles */
+.slideshow {
+  margin: 28px 0;
+}
+
+.slideshow__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slideshow__slide-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  min-height: 400px;
+}
+
+.slideshow__slide {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+
+.slideshow__slide--active {
+  position: relative;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slideshow__slide h3 {
+  margin: 4px 0;
+  font-size: 1.2rem;
+}
+
+.slideshow__slide p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.slideshow__button {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--brand);
+  background: var(--surface);
+  color: var(--brand);
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.slideshow__button:hover {
+  background: var(--brand);
+  color: var(--brand-ink);
+  transform: scale(1.1);
+}
+
+.slideshow__button:active {
+  transform: scale(0.95);
+}
+
+.slideshow__indicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.slideshow__indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--brand);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.slideshow__indicator:hover {
+  background: var(--brand-100);
+  transform: scale(1.2);
+}
+
+.slideshow__indicator--active {
+  background: var(--brand);
+}
+
+@media (max-width: 760px) {
+  .slideshow__button {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .slideshow__slide-wrapper {
+    min-height: 350px;
+  }
+}

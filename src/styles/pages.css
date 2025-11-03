@@ -1,0 +1,28 @@
+/* Page-specific shared styles */
+.pages-container {
+  padding: 28px var(--pad);
+}
+
+/* Common page layouts */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+}
+
+.page-sub {
+  color: var(--muted);
+  margin: 0;
+}
+
+/* News page grid */
+.news-grid {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.news-card {
+  grid-column: 1 / -1;
+}
