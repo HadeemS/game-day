@@ -9,6 +9,7 @@
  * - Integrates seamlessly into the page (no external redirect)
  */
 import { useState, useRef } from 'react'
+import { assetPath } from '../utils/assetPath'
 import '../styles/contact.css'
 
 const ENDPOINT = "https://api.web3forms.com/submit"
@@ -74,7 +75,7 @@ export default function Contact(){
         </div>
         <div className="media frame">
           <img 
-            src="/images/GetinTouch.jpg" 
+            src={assetPath('images/GetinTouch.jpg')} 
             alt="Get in Touch"
             onError={(e) => {
               e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect width="1200" height="600" fill="%23f5f6f7"/><text x="600" y="305" text-anchor="middle" font-family="sans-serif" font-size="40" fill="%23666">Contact</text></svg>';

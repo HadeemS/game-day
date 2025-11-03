@@ -1,3 +1,5 @@
+import { assetPath } from '../utils/assetPath'
+
 export default function Favorites(){
   return (
     <main id="main" className="container">
@@ -7,7 +9,7 @@ export default function Favorites(){
       <div className="grid">
         <article className="card">
           <div className="frame">
-            <img src="/images/falconslogo.png" alt="Atlanta Falcons crest" />
+            <img src={assetPath('images/falconslogo.png')} alt="Atlanta Falcons crest" />
           </div>
           <div className="actions">
             <a className="btn" href="/team/atlanta-falcons">Open preview</a>
@@ -19,7 +21,7 @@ export default function Favorites(){
 
         <article className="card">
           <div className="frame">
-            <img src="/images/united.png" alt="Manchester United crest" />
+            <img src={assetPath('images/united.png')} alt="Manchester United crest" />
           </div>
           <div className="actions">
             <a className="btn" href="/team/manchester-united">Open preview</a>

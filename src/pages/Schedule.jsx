@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { assetPath } from '../utils/assetPath'
 
 const SCHEDULES = {
   'atlanta-falcons': {
@@ -160,7 +161,7 @@ export default function Schedule(){
 
         <div className="media frame">
           <img 
-            src="/images/tipoff.jpg" 
+            src={assetPath('images/tipoff.jpg')} 
             alt="Scoreboard with schedules" 
             loading="lazy"
             onError={(e) => {
