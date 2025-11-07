@@ -8,7 +8,7 @@ export default function Home(){
   const slides = [
     {
       image: assetPath('images/falcons.jpg'),
-      alt: 'Falcons players celebrating a score',
+      alt: 'Falcons players celebrating after a score',
       title: 'Falcons ride late surge',
       description: 'The Falcons closes strong in the fourth for their third straight win.',
       link: { url: '/news', text: 'Read recap' }
