@@ -52,6 +52,7 @@ export default function Home(){
 
       <section className="project-links" aria-label="Project links">
         <h2 className="section-title">Project Information</h2>
+        <p className="page-sub">Client + API resources powering the Games page.</p>
         <div className="project-links__container">
           <a 
             href="https://github.com/HadeemS/game-day"
@@ -68,6 +69,22 @@ export default function Home(){
             rel="noopener noreferrer"
           >
             Live Site
+          </a>
+          <a 
+            href="https://github.com/HadeemS/game-day-api/"
+            className="btn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Server Code (API)
+          </a>
+          <a 
+            href="https://game-day-api.onrender.com/"
+            className="btn ghost"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Live API (Render)
           </a>
         </div>
       </section>

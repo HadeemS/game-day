@@ -54,6 +54,7 @@ export default function Nav(){
           <NavLink to="/" className={({isActive}) => isActive ? 'active' : undefined} onClick={closeNav}>Home</NavLink>
           <NavLink to="/teams" className={({isActive}) => isActive ? 'active' : undefined} onClick={closeNav}>Teams</NavLink>
           <NavLink to="/schedule" className={({isActive}) => isActive ? 'active' : undefined} onClick={closeNav}>Schedule</NavLink>
+          <NavLink to="/games" className={({isActive}) => isActive ? 'active' : undefined} onClick={closeNav}>Games</NavLink>
           <NavLink to="/news" className={({isActive}) => isActive ? 'active' : undefined} onClick={closeNav}>News</NavLink>
           <NavLink to="/favorites" className={({isActive}) => isActive ? 'active' : undefined} onClick={closeNav}>Favorites</NavLink>
           <NavLink to="/contact" className={({isActive}) => isActive ? 'active' : undefined} onClick={closeNav}>Contact Us</NavLink>

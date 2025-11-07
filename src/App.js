@@ -9,6 +9,7 @@ import Contact from './pages/Contact';
 import TeamDetail from './pages/TeamDetail';
 import TeamNews from './pages/TeamNews';
 import Layout from './layouts/SiteLayout';
+import Games from './pages/Games';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/teams" element={<Teams />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/games" element={<Games />} />
           <Route path="/news" element={<News />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/contact" element={<Contact />} />
