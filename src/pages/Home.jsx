@@ -54,12 +54,12 @@ export default function Home(){
         <h2 className="section-title">Project Information</h2>
         <div className="project-links__container">
           <a 
-            href="https://hadeems.github.io/game-day/"
+            href="https://github.com/HadeemS/game-day"
             className="btn"
             target="_blank"
             rel="noopener noreferrer"
           >
-            View Code
+            View Code On GitHub
           </a>
           <a 
             href="https://hadeems.github.io/game-day/"
