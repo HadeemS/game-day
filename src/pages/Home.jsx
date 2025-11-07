@@ -11,21 +11,21 @@ export default function Home(){
       alt: 'Falcons players celebrating a score',
       title: 'Falcons ride late surge',
       description: 'The Falcons closes strong in the fourth for their third straight win.',
-      link: { url: '#/news', text: 'Read recap' }
+      link: { url: '/news', text: 'Read recap' }
     },
     {
       image: assetPath('images/united.jpg'),
       alt: 'United forward sprinting down the sideline',
       title: 'United edges Chelsea',
       description: 'Defense seals it in the final minute to take the series lead.',
-      link: { url: '#/news', text: 'Read recap' }
+      link: { url: '/news', text: 'Read recap' }
     },
     {
       image: assetPath('images/hawks.jpg'),
       alt: 'Hawks huddle before kickoff',
       title: 'Hawks regroup on the road',
       description: 'New look lineup aims to reset momentum in a tough venue.',
-      link: { url: '#/news', text: 'Read preview' }
+      link: { url: '/news', text: 'Read preview' }
     }
   ]
 
