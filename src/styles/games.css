@@ -161,6 +161,104 @@
   }
 }
 
+/* Game Form Styles */
+.game-form-section {
+  margin-bottom: 32px;
+}
+
+.game-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.game-form__grid {
+  display: grid;
+  gap: 16px 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+}
+
+.game-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.game-form__field--full {
+  grid-column: 1 / -1;
+}
+
+.game-form__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.game-form__field input,
+.game-form__field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.game-form__field input:focus,
+.game-form__field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(214, 35, 42, 0.1);
+}
+
+.game-form__field--error input,
+.game-form__field--error textarea {
+  border-color: #b91c1c;
+}
+
+.game-form__field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.game-form__error {
+  font-size: 0.85rem;
+  color: #b91c1c;
+  margin-top: -2px;
+}
+
+.game-form__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.game-form__status {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.game-form__status--success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #16a34a;
+}
+
+.game-form__status--error {
+  background: rgba(217, 45, 32, 0.08);
+  border: 1px solid rgba(217, 45, 32, 0.3);
+  color: #b91c1c;
+}
+
 @media (max-width: 600px) {
   .game-card__body {
     padding: 14px;
@@ -168,5 +266,18 @@
 
   .game-card__media {
     padding-top: 62%;
+  }
+
+  .game-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .game-form__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .game-form__footer .btn {
+    width: 100%;
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { getGames, getGame, API_BASE_URL } from '../api/games'
 import { assetPath } from '../utils/assetPath'
+import GameForm from '../components/GameForm'
 import '../styles/games.css'
 
 const FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"><rect width="640" height="360" fill="%23f5f7fb"/><text x="50%" y="52%" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="%235b6472">Game photo unavailable</text></svg>'
@@ -147,6 +148,15 @@ export default function Games() {
           />
         </div>
       </section>
+
+      <GameForm
+        onSuccess={() => {
+          setReloadKey((key) => key + 1)
+        }}
+        onError={(err) => {
+          console.error('Form error:', err)
+        }}
+      />
 
       <section className="games-list">
         <div className={`games-status ${error ? 'error' : ''}`} aria-live="polite">

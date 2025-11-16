@@ -39,4 +39,14 @@ export function getGame(id) {
   return request(`/api/games/${id}`)
 }
 
+export function createGame(gameData) {
+  return request('/api/games', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(gameData),
+  })
+}
+
 export { API_BASE_URL }
