@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { createGame } from '../api/games'
+import { useState, useEffect } from 'react'
+import { createGame, updateGame } from '../api/games'
 import '../styles/games.css'
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
@@ -14,7 +14,7 @@ const initialFormState = {
   venue: '',
   city: '',
   price: '',
-  img: '',
+  imageUrl: '',
   summary: '',
 }
 
@@ -84,11 +84,11 @@ const validateGame = (values) => {
     }
   }
 
-  const trimmedImg = values.img.trim()
-  if (!trimmedImg) {
-    errors.img = 'Image path or URL is required.'
-  } else if (!IMG_REGEX.test(trimmedImg)) {
-    errors.img = 'Image should start with http(s):// or /'
+  const trimmedImageUrl = values.imageUrl.trim()
+  if (!trimmedImageUrl) {
+    errors.imageUrl = 'Image URL is required.'
+  } else if (!IMG_REGEX.test(trimmedImageUrl)) {
+    errors.imageUrl = 'Image URL should start with http(s):// or /'
   }
 
   const trimmedSummary = values.summary.trim()
@@ -111,15 +111,44 @@ const formFields = [
   { name: 'venue', label: 'Venue', placeholder: 'Crypto.com Arena', type: 'text' },
   { name: 'city', label: 'City', placeholder: 'Los Angeles, CA', type: 'text' },
   { name: 'price', label: 'Starting Price (USD)', placeholder: '120', type: 'number' },
-  { name: 'img', label: 'Image URL or Path', placeholder: '/images/lakers-vs-celtics.png', type: 'url', span: 'full' },
+  { name: 'imageUrl', label: 'Image URL', placeholder: 'https://example.com/image.jpg or /images/game.jpg', type: 'url', span: 'full' },
   { name: 'summary', label: 'Summary', placeholder: 'What makes this matchup must-see TV?', type: 'textarea', span: 'full' },
 ]
 
-export default function GameForm({ onSuccess, onError }) {
+export default function GameForm({ game = null, onSuccess, onError, onCancel }) {
+  const isEditMode = Boolean(game)
   const [formData, setFormData] = useState(initialFormState)
   const [formErrors, setFormErrors] = useState({})
   const [status, setStatus] = useState({ type: 'idle', message: '' })
   const [submitting, setSubmitting] = useState(false)
+
+  // Populate form when editing
+  useEffect(() => {
+    if (game) {
+      // Convert date from YYYY-MM-DD to date input format
+      const gameDate = game.date || ''
+      // Convert time to HH:mm format if needed
+      const gameTime = game.time || ''
+      
+      setFormData({
+        title: game.title || '',
+        league: game.league || '',
+        date: gameDate,
+        time: gameTime,
+        venue: game.venue || '',
+        city: game.city || '',
+        price: game.price?.toString() || '',
+        imageUrl: game.imageUrl || game.img || game.image || '',
+        summary: game.summary || '',
+      })
+      setFormErrors({})
+      setStatus({ type: 'idle', message: '' })
+    } else {
+      setFormData(initialFormState)
+      setFormErrors({})
+      setStatus({ type: 'idle', message: '' })
+    }
+  }, [game])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -142,17 +171,24 @@ export default function GameForm({ onSuccess, onError }) {
 
     try {
       const payload = { ...formData, price: Number(formData.price) }
-      const responseData = await createGame(payload)
+      const responseData = isEditMode
+        ? await updateGame(game._id || game.id, payload)
+        : await createGame(payload)
 
-      setFormData(initialFormState)
-      setFormErrors({})
-      setStatus({ type: 'success', message: 'Game posted successfully!' })
+      if (!isEditMode) {
+        setFormData(initialFormState)
+        setFormErrors({})
+      }
+      setStatus({ 
+        type: 'success', 
+        message: isEditMode ? 'Game updated successfully!' : 'Game posted successfully!' 
+      })
       
       if (onSuccess) {
         onSuccess(responseData.game || responseData)
       }
     } catch (error) {
-      const errorMessage = error.message || 'Unable to save game.'
+      const errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
       setStatus({
         type: 'error',
         message: errorMessage,
@@ -165,13 +201,20 @@ export default function GameForm({ onSuccess, onError }) {
     }
   }
 
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel()
+    }
+  }
+
   return (
     <section className="card game-form-section">
       <div className="copy">
-        <h2 className="section-title">Post a marquee matchup</h2>
+        <h2 className="section-title">{isEditMode ? 'Edit matchup' : 'Post a marquee matchup'}</h2>
         <p className="page-sub">
-          Client-side validation mirrors the Joi rules on the server, so you know every entry will
-          land perfectly on the schedule.
+          {isEditMode 
+            ? 'Update the game details below. Client-side validation mirrors the Joi rules on the server.'
+            : 'Client-side validation mirrors the Joi rules on the server, so you know every entry will land perfectly on the schedule.'}
         </p>
       </div>
 
@@ -221,9 +264,18 @@ export default function GameForm({ onSuccess, onError }) {
               {status.message}
             </p>
           )}
-          <button className="btn" type="submit" disabled={submitting}>
-            {submitting ? 'Posting...' : 'Share this game'}
-          </button>
+          <div className="game-form__actions">
+            {isEditMode && (
+              <button className="btn ghost" type="button" onClick={handleCancel} disabled={submitting}>
+                Cancel
+              </button>
+            )}
+            <button className="btn" type="submit" disabled={submitting}>
+              {submitting 
+                ? (isEditMode ? 'Updating...' : 'Posting...') 
+                : (isEditMode ? 'Update game' : 'Share this game')}
+            </button>
+          </div>
         </div>
       </form>
     </section>

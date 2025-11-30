@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { getGames, getGame, API_BASE_URL } from '../api/games'
+import { getGames, getGame, deleteGame, API_BASE_URL } from '../api/games'
 import { assetPath } from '../utils/assetPath'
 import GameForm from '../components/GameForm'
 import '../styles/games.css'
@@ -24,9 +24,12 @@ function normalizeList(payload) {
 function normalizeGame(payload) {
   if (!payload) return null
   const game = payload.game || payload.data || payload
+  // Support both imageUrl (new) and img/image (legacy) for backward compatibility
+  const imageSource = game.imageUrl || game.img || game.image
   return {
     ...game,
-    img: resolveImageUrl(game.img || game.image),
+    img: resolveImageUrl(imageSource),
+    imageUrl: imageSource, // Keep both for compatibility
     title: game.title || game.matchup || 'Matchup',
     league: game.league || game.competition || 'League',
     date: game.date || game.gameday || 'TBD',
@@ -46,6 +49,8 @@ export default function Games() {
   const [modalState, setModalState] = useState('idle')
   const [activeGame, setActiveGame] = useState(null)
   const [modalError, setModalError] = useState('')
+  const [editingGame, setEditingGame] = useState(null)
+  const [deletingGameId, setDeletingGameId] = useState(null)
 
   useEffect(() => {
     let isMounted = true
@@ -108,6 +113,45 @@ export default function Games() {
     }
   }
 
+  const handleEdit = (game) => {
+    setEditingGame(game)
+    // Scroll to form
+    setTimeout(() => {
+      const formSection = document.querySelector('.game-form-section')
+      if (formSection) {
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }
+
+  const handleEditCancel = () => {
+    setEditingGame(null)
+  }
+
+  const handleEditSuccess = () => {
+    setEditingGame(null)
+    setReloadKey((key) => key + 1)
+  }
+
+  const handleDelete = async (gameId, gameTitle) => {
+    if (!window.confirm(`Are you sure you want to delete "${gameTitle}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setDeletingGameId(gameId)
+    try {
+      await deleteGame(gameId)
+      // Remove from local state immediately for better UX
+      setGames((current) => current.filter((g) => (g._id || g.id) !== gameId))
+      setReloadKey((key) => key + 1)
+    } catch (err) {
+      alert(`Failed to delete game: ${err.message || 'Unknown error'}`)
+      setReloadKey((key) => key + 1) // Refresh to get accurate state
+    } finally {
+      setDeletingGameId(null)
+    }
+  }
+
   return (
     <main id="main" className="container games-page">
       <section className="hero" aria-label="API-powered games feed">
@@ -150,12 +194,12 @@ export default function Games() {
       </section>
 
       <GameForm
-        onSuccess={() => {
-          setReloadKey((key) => key + 1)
-        }}
+        game={editingGame}
+        onSuccess={handleEditSuccess}
         onError={(err) => {
           console.error('Form error:', err)
         }}
+        onCancel={handleEditCancel}
       />
 
       <section className="games-list">
@@ -177,35 +221,67 @@ export default function Games() {
         )}
 
         <div className="games-grid" aria-live="polite">
-          {games.map((game) => (
-            <button
-              key={game._id || game.id || game.title}
-              type="button"
-              className="game-card"
-              onClick={() => openGame(game._id || game.id)}
-            >
-              <div className="game-card__media">
-                <img
-                  src={game.img || FALLBACK_IMAGE}
-                  alt={game.title}
-                  loading="lazy"
-                  onError={(event) => {
-                    event.currentTarget.src = FALLBACK_IMAGE
-                  }}
-                />
+          {games.map((game) => {
+            const gameId = game._id || game.id
+            const isDeleting = deletingGameId === gameId
+            return (
+              <div key={gameId || game.title} className="game-card-wrapper">
+                <button
+                  type="button"
+                  className="game-card"
+                  onClick={() => openGame(gameId)}
+                  disabled={isDeleting}
+                >
+                  <div className="game-card__media">
+                    <img
+                      src={game.img || FALLBACK_IMAGE}
+                      alt={game.title}
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.src = FALLBACK_IMAGE
+                      }}
+                    />
+                  </div>
+                  <div className="game-card__body">
+                    <span className="game-card__league">
+                      {game.league} • {game.city}
+                    </span>
+                    <h3>{game.title}</h3>
+                    <p>
+                      {game.date} {game.time && `@ ${game.time}`}
+                    </p>
+                    <p>{game.venue}</p>
+                  </div>
+                </button>
+                <div className="game-card__actions">
+                  <button
+                    className="btn ghost btn-sm"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleEdit(game)
+                    }}
+                    disabled={isDeleting}
+                    aria-label={`Edit ${game.title}`}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn ghost btn-sm btn-danger"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(gameId, game.title)
+                    }}
+                    disabled={isDeleting}
+                    aria-label={`Delete ${game.title}`}
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
               </div>
-              <div className="game-card__body">
-                <span className="game-card__league">
-                  {game.league} • {game.city}
-                </span>
-                <h3>{game.title}</h3>
-                <p>
-                  {game.date} {game.time && `@ ${game.time}`}
-                </p>
-                <p>{game.venue}</p>
-              </div>
-            </button>
-          ))}
+            )
+          })}
         </div>
       </section>
 

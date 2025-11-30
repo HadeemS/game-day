@@ -1,4 +1,4 @@
-const RAW_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://game-day-api.onrender.com'
+const RAW_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://game-day-api-1.onrender.com'
 const API_BASE_URL = RAW_BASE_URL.replace(/\/+$/, '')
 
 function buildUrl(path = '') {
@@ -46,6 +46,28 @@ export function createGame(gameData) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(gameData),
+  })
+}
+
+export function updateGame(id, gameData) {
+  if (!id) {
+    return Promise.reject(new Error('Game id is required'))
+  }
+  return request(`/api/games/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(gameData),
+  })
+}
+
+export function deleteGame(id) {
+  if (!id) {
+    return Promise.reject(new Error('Game id is required'))
+  }
+  return request(`/api/games/${id}`, {
+    method: 'DELETE',
   })
 }
 
