@@ -13,7 +13,8 @@ import { assetPath } from '../utils/assetPath'
 import '../styles/contact.css'
 
 const ENDPOINT = "https://api.web3forms.com/submit"
-const ACCESS_KEY = "4b370dcc-6fd1-4c70-ad6c-98ba1e9a9835"
+// API key stored in environment variable for security
+const ACCESS_KEY = process.env.REACT_APP_WEB3FORMS_ACCESS_KEY || ""
 
 export default function Contact(){
   const [status, setStatus] = useState({ type: '', message: '' })

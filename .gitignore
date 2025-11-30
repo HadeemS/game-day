@@ -73,6 +73,9 @@ web_modules/
 # Personal connection strings (keep private)
 YOUR_CONNECTION_STRING.txt
 *CONNECTION_STRING*.txt
+COPY_PASTE_READY.txt
+RENDER_SETUP_NOW.md
+YOUR_MONGODB_SETUP.md
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
