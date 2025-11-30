@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/game-day/static/css/main.4fdfbd76.css",
-    "main.js": "/game-day/static/js/main.155e15a7.js",
+    "main.js": "/game-day/static/js/main.e733303f.js",
     "static/media/sports.jpg": "/game-day/static/media/sports.0721905a03cb4d5041fe.jpg",
     "index.html": "/game-day/index.html",
     "main.4fdfbd76.css.map": "/game-day/static/css/main.4fdfbd76.css.map",
-    "main.155e15a7.js.map": "/game-day/static/js/main.155e15a7.js.map"
+    "main.e733303f.js.map": "/game-day/static/js/main.e733303f.js.map"
   },
   "entrypoints": [
     "static/css/main.4fdfbd76.css",
-    "static/js/main.155e15a7.js"
+    "static/js/main.e733303f.js"
   ]
 }
