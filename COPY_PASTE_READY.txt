@@ -1,0 +1,36 @@
+# 🎯 COPY-PASTE READY - Your MongoDB Connection String
+
+## For Render Dashboard (Environment Variable)
+
+**Key**: MONGODB_URI
+**Value**: mongodb+srv://hadeemsecka_db_user:p6SOhsLJqogXtWB8@gameday.nf4nnn9.mongodb.net/gameday?appName=Gameday
+
+---
+
+## For Local .env File
+
+Create a file named `.env` in your `game-day-api` folder with:
+
+MONGODB_URI=mongodb+srv://hadeemsecka_db_user:p6SOhsLJqogXtWB8@gameday.nf4nnn9.mongodb.net/gameday?appName=Gameday
+PORT=3000
+
+---
+
+## ✅ Security Status
+
+✅ This file is protected by .gitignore
+✅ Your connection string will NOT be committed to GitHub
+✅ Safe to keep this file locally
+
+---
+
+## 🚀 Next Steps
+
+1. Copy the connection string above
+2. Go to Render → Your Service → Environment tab
+3. Add MONGODB_URI with the value above
+4. Save and wait for deployment (~2 minutes)
+5. Test: https://game-day-api-1.onrender.com/api/games
+
+Done! 🎉
+
