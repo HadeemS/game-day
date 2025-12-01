@@ -1,5 +1,11 @@
+// API Base URL - points to the Render-hosted API
 const RAW_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://game-day-api-1.onrender.com'
 const API_BASE_URL = RAW_BASE_URL.replace(/\/+$/, '')
+
+// Log the API URL in development for debugging
+if (process.env.NODE_ENV === 'development') {
+  console.log('API Base URL:', API_BASE_URL)
+}
 
 function buildUrl(path = '') {
   if (!path.startsWith('/')) {

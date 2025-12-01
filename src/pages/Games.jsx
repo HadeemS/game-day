@@ -176,7 +176,7 @@ export default function Games() {
             </a>
             <a
               className="btn ghost"
-              href="https://game-day-api.onrender.com/"
+              href="https://game-day-api-1.onrender.com/"
               target="_blank"
               rel="noopener noreferrer"
             >

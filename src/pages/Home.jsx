@@ -79,7 +79,7 @@ export default function Home(){
             Server Code (API)
           </a>
           <a 
-            href="https://game-day-api.onrender.com/"
+            href="https://game-day-api-1.onrender.com/"
             className="btn ghost"
             target="_blank"
             rel="noopener noreferrer"
