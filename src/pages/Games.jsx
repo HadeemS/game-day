@@ -11,7 +11,11 @@ function resolveImageUrl(path) {
   if (/^https?:\/\//i.test(path)) {
     return path
   }
-  return `${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`
+  const normalized = path.startsWith('/') ? path : `/${path}`
+  if (normalized.startsWith('/images/')) {
+    return assetPath(normalized)
+  }
+  return `${API_BASE_URL}${normalized}`
 }
 
 function normalizeList(payload) {
