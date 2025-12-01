@@ -9,6 +9,7 @@ require('dotenv').config() // Load environment variables from .env file
 const express = require('express')
 const cors = require('cors')
 const db = require('./db') // MongoDB connection
+const connectDB = db.connectDB // Get connectDB function
 const gamesRoutes = require('./routes/games')
 
 const app = express()
@@ -42,11 +43,24 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', database: db.readyState === 1 ? 'connected' : 'disconnected' })
 })
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`)
-  console.log(`📊 MongoDB connection status: ${db.readyState === 1 ? 'Connected' : 'Connecting...'}`)
-})
+// Start server only after MongoDB connection is established
+async function startServer() {
+  try {
+    // Wait for MongoDB connection before starting server
+    await connectDB()
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`)
+      console.log(`📊 MongoDB connection status: Connected`)
+    })
+  } catch (error) {
+    console.error('Failed to start server:', error)
+    process.exit(1)
+  }
+}
+
+// Start the server
+startServer()
 
 module.exports = app
 

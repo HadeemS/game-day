@@ -11,7 +11,22 @@
 const express = require('express')
 const router = express.Router()
 const Joi = require('joi')
+const mongoose = require('mongoose')
 const Game = require('../models/Game')
+
+// Middleware to check MongoDB connection before processing requests
+const checkConnection = (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ 
+      message: 'Database connection not ready. Please try again in a moment.',
+      error: 'Database unavailable'
+    })
+  }
+  next()
+}
+
+// Apply connection check to all routes
+router.use(checkConnection)
 
 // Joi validation schema - MUST match Mongoose schema and client-side validation
 const gameSchema = Joi.object({
