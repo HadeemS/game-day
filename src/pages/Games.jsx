@@ -60,11 +60,14 @@ export default function Games() {
     getGames()
       .then((payload) => {
         if (!isMounted) return
+        console.log('API response:', payload)
         const normalized = normalizeList(payload).map(normalizeGame).filter(Boolean)
+        console.log('Normalized games:', normalized)
         setGames(normalized)
       })
       .catch((err) => {
         if (!isMounted) return
+        console.error('Error loading games:', err)
         setError(err?.message || 'Unable to load games. Please try again shortly.')
       })
       .finally(() => {

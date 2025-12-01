@@ -9,23 +9,40 @@ function buildUrl(path = '') {
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(buildUrl(path), {
-    headers: {
-      Accept: 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  })
+  try {
+    const url = buildUrl(path)
+    const response = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    })
 
-  const isJson = response.headers.get('content-type')?.includes('application/json')
-  const body = isJson ? await response.json() : await response.text()
+    const contentType = response.headers.get('content-type') || ''
+    const isJson = contentType.includes('application/json')
+    
+    let body
+    try {
+      body = isJson ? await response.json() : await response.text()
+    } catch (parseError) {
+      console.error('Failed to parse response:', parseError)
+      throw new Error(`Invalid response from server: ${response.status} ${response.statusText}`)
+    }
 
-  if (!response.ok) {
-    const message = typeof body === 'string' ? body : body?.message
-    throw new Error(message || `Request failed with status ${response.status}`)
+    if (!response.ok) {
+      const message = typeof body === 'string' ? body : body?.message || body?.error
+      throw new Error(message || `Request failed with status ${response.status}`)
+    }
+
+    return body
+  } catch (error) {
+    // Network errors or fetch failures
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to reach the API server. Please check your connection.')
+    }
+    throw error
   }
-
-  return body
 }
 
 export function getGames() {
