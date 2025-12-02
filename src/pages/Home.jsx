@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import Slideshow from '../components/Slideshow'
 import '../styles/home.css'
 import heroImage from '../images/sports.jpg';

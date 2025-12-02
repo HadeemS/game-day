@@ -1,5 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
-import { BrowserRouter } from "react-router-dom";
+import { Routes, Route, HashRouter } from 'react-router-dom'
 import Home from './pages/Home'
 import Teams from './pages/Teams'
 import Schedule from './pages/Schedule'
@@ -13,7 +12,7 @@ import Games from './pages/Games';
 
 function App() {
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <HashRouter basename={process.env.PUBLIC_URL}>
 
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -30,7 +29,7 @@ function App() {
         </Route>
           
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

@@ -38,7 +38,12 @@ async function request(path, options = {}) {
 
     if (!response.ok) {
       const message = typeof body === 'string' ? body : body?.message || body?.error
-      throw new Error(message || `Request failed with status ${response.status}`)
+      const error = new Error(message || `Request failed with status ${response.status}`)
+      if (typeof body === 'object' && body !== null) {
+        error.status = response.status
+        error.details = body.errors || body.error || null
+      }
+      throw error
     }
 
     return body

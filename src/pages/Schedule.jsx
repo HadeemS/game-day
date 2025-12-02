@@ -43,10 +43,6 @@ const SCHEDULES = {
 const TEAMS = Object.values(SCHEDULES).map(t => t.name)
 const SLUG_MAP = Object.fromEntries(Object.keys(SCHEDULES).map(slug => [SCHEDULES[slug].name.toLowerCase(), slug]))
 
-function slugify(s) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
 export default function Schedule(){
   const [selectedTeam, setSelectedTeam] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')

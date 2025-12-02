@@ -188,6 +188,16 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
         onSuccess(responseData.game || responseData)
       }
     } catch (error) {
+      if (Array.isArray(error.details)) {
+        const serverErrors = {}
+        error.details.forEach((detail) => {
+          if (detail.field) {
+            serverErrors[detail.field] = detail.message || 'Invalid value.'
+          }
+        })
+        setFormErrors((current) => ({ ...current, ...serverErrors }))
+      }
+
       const errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
       setStatus({
         type: 'error',
@@ -281,4 +291,3 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
     </section>
   )
 }
-
