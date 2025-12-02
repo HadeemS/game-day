@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { getGames, getGame, deleteGame, API_BASE_URL } from '../api/games'
 import { assetPath } from '../utils/assetPath'
-import GameForm from '../components/GameForm'
 import '../styles/games.css'
 
 function resolveImageUrl(path) {
@@ -54,7 +53,6 @@ export default function Games() {
   const [modalState, setModalState] = useState('idle')
   const [activeGame, setActiveGame] = useState(null)
   const [modalError, setModalError] = useState('')
-  const [editingGame, setEditingGame] = useState(null)
   const [deletingGameId, setDeletingGameId] = useState(null)
 
   useEffect(() => {
@@ -121,25 +119,6 @@ export default function Games() {
     }
   }
 
-  const handleEdit = (game) => {
-    setEditingGame(game)
-    // Scroll to form
-    setTimeout(() => {
-      const formSection = document.querySelector('.game-form-section')
-      if (formSection) {
-        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 100)
-  }
-
-  const handleEditCancel = () => {
-    setEditingGame(null)
-  }
-
-  const handleEditSuccess = () => {
-    setEditingGame(null)
-    setReloadKey((key) => key + 1)
-  }
 
   const handleDelete = async (gameId, gameTitle) => {
     if (!window.confirm(`Are you sure you want to delete "${gameTitle}"? This action cannot be undone.`)) {
@@ -201,14 +180,22 @@ export default function Games() {
         </div>
       </section>
 
-      <GameForm
-        game={editingGame}
-        onSuccess={handleEditSuccess}
-        onError={(err) => {
-          console.error('Form error:', err)
-        }}
-        onCancel={handleEditCancel}
-      />
+      <section className="card" style={{ marginTop: '2rem' }}>
+        <div className="copy">
+          <h2 className="section-title">Add or Edit Games</h2>
+          <p className="page-sub">
+            Use the API form to create or edit games. Changes will appear here automatically.
+          </p>
+          <a
+            className="btn"
+            href={`${API_BASE_URL}/`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open API Form
+          </a>
+        </div>
+      </section>
 
       <section className="games-list">
         <div className={`games-status ${error ? 'error' : ''}`} aria-live="polite">
@@ -262,18 +249,6 @@ export default function Games() {
                   </div>
                 </button>
                 <div className="game-card__actions">
-                  <button
-                    className="btn ghost btn-sm"
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleEdit(game)
-                    }}
-                    disabled={isDeleting}
-                    aria-label={`Edit ${game.title}`}
-                  >
-                    Edit
-                  </button>
                   <button
                     className="btn ghost btn-sm btn-danger"
                     type="button"
