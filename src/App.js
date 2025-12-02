@@ -11,23 +11,23 @@ import Layout from './layouts/SiteLayout';
 import Games from './pages/Games';
 
 function App() {
+  // HashRouter prevents 404s on reload for GitHub Pages
+  // Remove basename to work properly with HashRouter
   return (
-    <HashRouter basename={process.env.PUBLIC_URL}>
-
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="/teams" element={<Teams />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/games" element={<Games />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/team/:slug" element={<TeamDetail />} />
-          <Route path="/team/:slug/news" element={<TeamNews />} />
+          <Route path="teams" element={<Teams />} />
+          <Route path="schedule" element={<Schedule />} />
+          <Route path="games" element={<Games />} />
+          <Route path="news" element={<News />} />
+          <Route path="favorites" element={<Favorites />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="team/:slug" element={<TeamDetail />} />
+          <Route path="team/:slug/news" element={<TeamNews />} />
           <Route path="*" element={<Home />} />
         </Route>
-          
       </Routes>
     </HashRouter>
   );

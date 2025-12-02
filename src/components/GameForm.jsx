@@ -157,22 +157,41 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
   const [status, setStatus] = useState({ type: 'idle', message: '' })
   const [submitting, setSubmitting] = useState(false)
 
+  // Helper to normalize date to YYYY-MM-DD format for HTML date input
+  const normalizeDateForInput = (dateStr) => {
+    if (!dateStr) return ''
+    // If already in YYYY-MM-DD format, return as-is
+    if (DATE_REGEX.test(dateStr)) return dateStr
+    // Try to parse other date formats
+    try {
+      const date = new Date(dateStr)
+      if (!isNaN(date.getTime())) {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+    } catch (e) {
+      // If parsing fails, return empty
+    }
+    return ''
+  }
+
   // Populate form when editing
   useEffect(() => {
     if (game) {
-      // Convert date from YYYY-MM-DD to date input format
-      const gameDate = game.date || ''
-      // Convert time to HH:mm format if needed
-      const gameTime = game.time || ''
+      // Normalize date and time for HTML inputs
+      const normalizedDate = normalizeDateForInput(game.date || '')
+      const normalizedTime = normalizeTime(game.time || '')
       
       setFormData({
         title: game.title || '',
         league: game.league || '',
-        date: gameDate,
-        time: gameTime,
+        date: normalizedDate,
+        time: normalizedTime,
         venue: game.venue || '',
         city: game.city || '',
-        price: game.price?.toString() || '',
+        price: game.price !== undefined && game.price !== null ? String(game.price) : '',
         imageUrl: game.imageUrl || game.img || game.image || '',
         summary: game.summary || '',
       })
@@ -231,32 +250,37 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
         onSuccess(responseData.game || responseData)
       }
     } catch (error) {
-      if (Array.isArray(error.details)) {
-        const serverErrors = {}
-        let fallbackMessage = ''
-        error.details.forEach((detail) => {
-          if (typeof detail === 'string') {
-            if (!fallbackMessage) fallbackMessage = detail
-            if (/img/i.test(detail)) {
-              serverErrors.imageUrl = 'Image URL is required.'
+      console.error('Form submission error:', error)
+      
+      // Extract server-side validation errors
+      let serverErrors = {}
+      let errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
+      
+      // Check for validation errors in different possible formats
+      const errorDetails = error.details || (error.body && error.body.errors) || []
+      
+      if (Array.isArray(errorDetails) && errorDetails.length > 0) {
+        errorDetails.forEach((detail) => {
+          if (typeof detail === 'object' && detail !== null) {
+            const fieldName = detail.field || detail.path || detail.key
+            const fieldMessage = detail.message || detail.msg
+            if (fieldName && fieldMessage) {
+              serverErrors[fieldName] = fieldMessage
             }
-            return
-          }
-          if (detail.field) {
-            serverErrors[detail.field] = detail.message || 'Invalid value.'
           }
         })
-        setFormErrors((current) => ({ ...current, ...serverErrors }))
-        if (fallbackMessage && !status.message) {
-          setStatus({ type: 'error', message: fallbackMessage })
+        
+        if (Object.keys(serverErrors).length > 0) {
+          setFormErrors(serverErrors)
+          errorMessage = 'Please fix the validation errors highlighted below.'
         }
       }
-
-      const errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
+      
       setStatus({
         type: 'error',
         message: errorMessage,
       })
+      
       if (onError) {
         onError(error)
       }

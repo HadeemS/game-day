@@ -37,12 +37,27 @@ async function request(path, options = {}) {
     }
 
     if (!response.ok) {
-      const message = typeof body === 'string' ? body : body?.message || body?.error
-      const error = new Error(message || `Request failed with status ${response.status}`)
+      // Log the error response for debugging
+      console.error('API Error Response:', {
+        status: response.status,
+        body: body,
+        url: url
+      })
+      
+      const message = typeof body === 'string' 
+        ? body 
+        : body?.message || body?.error || `Request failed with status ${response.status}`
+      
+      const error = new Error(message)
+      error.status = response.status
+      error.body = body // Attach full response body
+      error.response = { data: body, status: response.status } // For compatibility
+      
+      // Extract validation errors if present
       if (typeof body === 'object' && body !== null) {
-        error.status = response.status
         error.details = body.errors || body.error || null
       }
+      
       throw error
     }
 
