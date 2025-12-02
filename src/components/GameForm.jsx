@@ -103,6 +103,41 @@ const validateGame = (values) => {
   return errors
 }
 
+const normalizeTime = (timeValue) => {
+  const trimmed = (timeValue || '').trim()
+  const twelveHourMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i)
+  if (twelveHourMatch) {
+    let [, hourStr, minute, meridiem] = twelveHourMatch
+    let hour = parseInt(hourStr, 10)
+    const isPm = meridiem.toLowerCase() === 'pm'
+    if (hour === 12) {
+      hour = isPm ? 12 : 0
+    } else if (isPm) {
+      hour += 12
+    }
+    return `${hour.toString().padStart(2, '0')}:${minute}`
+  }
+  return trimmed
+}
+
+const normalizeFormData = (values) => {
+  const normalized = { ...values }
+  normalized.title = values.title.trim()
+  normalized.league = values.league.trim()
+  normalized.date = values.date.trim()
+  normalized.time = normalizeTime(values.time)
+  normalized.venue = values.venue.trim()
+  normalized.city = values.city.trim()
+  normalized.price = values.price.toString().trim()
+  const rawImageUrl = values.imageUrl.trim()
+  normalized.imageUrl =
+    !/^https?:\/\//i.test(rawImageUrl) && !rawImageUrl.startsWith('/')
+      ? `/${rawImageUrl}`
+      : rawImageUrl
+  normalized.summary = values.summary.trim()
+  return normalized
+}
+
 const formFields = [
   { name: 'title', label: 'Matchup Title', placeholder: 'Lakers vs Celtics', type: 'text' },
   { name: 'league', label: 'League', placeholder: 'NBA, NFL, NCAA Football...', type: 'text' },
@@ -159,18 +194,26 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    const errors = validateGame(formData)
+    const normalized = normalizeFormData(formData)
+    const errors = validateGame(normalized)
 
     if (Object.keys(errors).length) {
       setFormErrors(errors)
       setStatus({ type: 'error', message: 'Please fix the highlighted fields.' })
+      setFormData((current) => ({ ...current, ...normalized }))
       return
     }
 
     setSubmitting(true)
 
     try {
-      const payload = { ...formData, price: Number(formData.price) }
+      const payload = { 
+        ...normalized, 
+        price: Number(normalized.price),
+        // Backend compatibility: some API versions expect img/image
+        img: normalized.imageUrl,
+        image: normalized.imageUrl,
+      }
       const responseData = isEditMode
         ? await updateGame(game._id || game.id, payload)
         : await createGame(payload)
@@ -190,12 +233,23 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
     } catch (error) {
       if (Array.isArray(error.details)) {
         const serverErrors = {}
+        let fallbackMessage = ''
         error.details.forEach((detail) => {
+          if (typeof detail === 'string') {
+            if (!fallbackMessage) fallbackMessage = detail
+            if (/img/i.test(detail)) {
+              serverErrors.imageUrl = 'Image URL is required.'
+            }
+            return
+          }
           if (detail.field) {
             serverErrors[detail.field] = detail.message || 'Invalid value.'
           }
         })
         setFormErrors((current) => ({ ...current, ...serverErrors }))
+        if (fallbackMessage && !status.message) {
+          setStatus({ type: 'error', message: fallbackMessage })
+        }
       }
 
       const errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
