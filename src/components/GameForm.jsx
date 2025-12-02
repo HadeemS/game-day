@@ -122,71 +122,24 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
   const [status, setStatus] = useState({ type: 'idle', message: '' })
   const [submitting, setSubmitting] = useState(false)
 
-  // Helper function to normalize date to YYYY-MM-DD format
-  const normalizeDate = (dateStr) => {
-    if (!dateStr) return ''
-    // If already in YYYY-MM-DD format, return as is
-    if (DATE_REGEX.test(dateStr)) return dateStr
-    // Try to parse other date formats
-    const date = new Date(dateStr)
-    if (!isNaN(date.getTime())) {
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      return `${year}-${month}-${day}`
-    }
-    return ''
-  }
-
-  // Helper function to normalize time to HH:mm (24-hour) format
-  const normalizeTime = (timeStr) => {
-    if (!timeStr) return ''
-    // If already in HH:mm format (24-hour), return as is
-    if (TIME_REGEX.test(timeStr)) return timeStr
-    // Try to parse 12-hour format (e.g., "12:00 PM")
-    const pmMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(PM|pm)/i)
-    const amMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|am)/i)
-    
-    if (pmMatch) {
-      let hours = parseInt(pmMatch[1], 10)
-      if (hours !== 12) hours += 12
-      const minutes = pmMatch[2]
-      return `${String(hours).padStart(2, '0')}:${minutes}`
-    }
-    if (amMatch) {
-      let hours = parseInt(amMatch[1], 10)
-      if (hours === 12) hours = 0
-      const minutes = amMatch[2]
-      return `${String(hours).padStart(2, '0')}:${minutes}`
-    }
-    return ''
-  }
-
   // Populate form when editing
   useEffect(() => {
     if (game) {
-      // Normalize date and time formats for HTML inputs
-      const normalizedDate = normalizeDate(game.date || '')
-      const normalizedTime = normalizeTime(game.time || '')
-      
-      // Log in development to help debug
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Loading game for edit:', {
-          original: { date: game.date, time: game.time },
-          normalized: { date: normalizedDate, time: normalizedTime }
-        })
-      }
+      // Convert date from YYYY-MM-DD to date input format
+      const gameDate = game.date || ''
+      // Convert time to HH:mm format if needed
+      const gameTime = game.time || ''
       
       setFormData({
-        title: (game.title || '').trim(),
-        league: (game.league || '').trim(),
-        date: normalizedDate,
-        time: normalizedTime,
-        venue: (game.venue || '').trim(),
-        city: (game.city || '').trim(),
-        price: game.price !== undefined && game.price !== null ? String(game.price) : '',
-        imageUrl: (game.imageUrl || game.img || game.image || '').trim(),
-        summary: (game.summary || '').trim(),
+        title: game.title || '',
+        league: game.league || '',
+        date: gameDate,
+        time: gameTime,
+        venue: game.venue || '',
+        city: game.city || '',
+        price: game.price?.toString() || '',
+        imageUrl: game.imageUrl || game.img || game.image || '',
+        summary: game.summary || '',
       })
       setFormErrors({})
       setStatus({ type: 'idle', message: '' })
@@ -206,34 +159,7 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    
-    // Normalize date and time before creating payload
-    const normalizedDate = normalizeDate(formData.date)
-    const normalizedTime = normalizeTime(formData.time)
-    
-    // Prepare payload with proper data types and trimming
-    const payload = {
-      title: formData.title.trim(),
-      league: formData.league.trim(),
-      date: normalizedDate, // Normalized to YYYY-MM-DD
-      time: normalizedTime, // Normalized to HH:mm (24-hour)
-      venue: formData.venue.trim(),
-      city: formData.city.trim(),
-      price: Number(formData.price), // Convert to number
-      imageUrl: formData.imageUrl.trim(),
-      summary: formData.summary.trim(),
-    }
-
-    // Validate the payload
-    const errors = validateGame(payload)
-    
-    // Additional validation: ensure date and time are not empty after normalization
-    if (!payload.date) {
-      errors.date = 'Date is required and must be in YYYY-MM-DD format.'
-    }
-    if (!payload.time) {
-      errors.time = 'Time is required and must be in HH:mm format (24-hour).'
-    }
+    const errors = validateGame(formData)
 
     if (Object.keys(errors).length) {
       setFormErrors(errors)
@@ -244,25 +170,10 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
     setSubmitting(true)
 
     try {
-      // Log payload for debugging (always log to help diagnose)
-      console.log('📤 Submitting payload:', JSON.stringify(payload, null, 2))
-      console.log('📤 Payload types:', {
-        title: typeof payload.title,
-        league: typeof payload.league,
-        date: typeof payload.date + ' = ' + payload.date,
-        time: typeof payload.time + ' = ' + payload.time,
-        venue: typeof payload.venue,
-        city: typeof payload.city,
-        price: typeof payload.price + ' = ' + payload.price,
-        imageUrl: typeof payload.imageUrl,
-        summary: typeof payload.summary,
-      })
-
+      const payload = { ...formData, price: Number(formData.price) }
       const responseData = isEditMode
         ? await updateGame(game._id || game.id, payload)
         : await createGame(payload)
-      
-      console.log('✅ Success! Response:', responseData)
 
       if (!isEditMode) {
         setFormData(initialFormState)
@@ -277,56 +188,11 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
         onSuccess(responseData.game || responseData)
       }
     } catch (error) {
-      console.error('Form submission error:', error)
-      console.error('Error body:', error.body)
-      console.error('Error response:', error.response)
-      
-      // Try to extract server-side validation errors
-      let serverErrors = {}
-      let errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
-      
-      // Check multiple possible error response formats
-      let validationErrors = []
-      
-      if (error.body) {
-        // Check if body has errors array
-        if (Array.isArray(error.body.errors)) {
-          validationErrors = error.body.errors
-        } else if (error.body.error && Array.isArray(error.body.error)) {
-          validationErrors = error.body.error
-        }
-      }
-      
-      if (error.response?.data) {
-        if (Array.isArray(error.response.data.errors)) {
-          validationErrors = error.response.data.errors
-        } else if (error.response.data.error && Array.isArray(error.response.data.error)) {
-          validationErrors = error.response.data.error
-        }
-      }
-      
-      // Map server errors to form fields
-      if (validationErrors.length > 0) {
-        validationErrors.forEach((err) => {
-          const fieldName = err.field || err.path || err.key
-          const fieldMessage = err.message || err.msg
-          if (fieldName && fieldMessage) {
-            serverErrors[fieldName] = fieldMessage
-          }
-        })
-        
-        if (Object.keys(serverErrors).length > 0) {
-          setFormErrors(serverErrors)
-          errorMessage = 'Please fix the validation errors highlighted below.'
-        }
-      }
-      
-      // If we have validation errors, show them; otherwise show generic message
+      const errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
       setStatus({
         type: 'error',
         message: errorMessage,
       })
-      
       if (onError) {
         onError(error)
       }

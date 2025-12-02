@@ -4,17 +4,18 @@ import { assetPath } from '../utils/assetPath'
 import GameForm from '../components/GameForm'
 import '../styles/games.css'
 
-const FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"><rect width="640" height="360" fill="%23f5f7fb"/><text x="50%" y="52%" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="%235b6472">Game photo unavailable</text></svg>'
-
 function resolveImageUrl(path) {
-  if (!path) return FALLBACK_IMAGE
+  if (!path) return ''
+  // If it's already a full URL, use it as-is
   if (/^https?:\/\//i.test(path)) {
     return path
   }
+  // Normalize the path
   const normalized = path.startsWith('/') ? path : `/${path}`
-  if (normalized.startsWith('/images/')) {
-    return assetPath(normalized)
-  }
+  
+  // Images from the backend API server should use API_BASE_URL
+  // Only use assetPath for local frontend assets (which would be in public/images/)
+  // Since backend images are at /images/, always use API_BASE_URL for those
   return `${API_BASE_URL}${normalized}`
 }
 
@@ -194,7 +195,7 @@ export default function Games() {
             alt="Fans cheering at a night game"
             loading="lazy"
             onError={(event) => {
-              event.currentTarget.src = FALLBACK_IMAGE
+              event.currentTarget.style.display = 'none'
             }}
           />
         </div>
@@ -241,11 +242,11 @@ export default function Games() {
                 >
                   <div className="game-card__media">
                     <img
-                      src={game.img || FALLBACK_IMAGE}
+                      src={game.img}
                       alt={game.title}
                       loading="lazy"
                       onError={(event) => {
-                        event.currentTarget.src = FALLBACK_IMAGE
+                        event.currentTarget.style.display = 'none'
                       }}
                     />
                   </div>
@@ -332,10 +333,10 @@ export default function Games() {
               <>
                 <div className="game-modal__media">
                   <img
-                    src={activeGame.img || FALLBACK_IMAGE}
+                    src={activeGame.img}
                     alt={activeGame.title}
                     onError={(event) => {
-                      event.currentTarget.src = FALLBACK_IMAGE
+                      event.currentTarget.style.display = 'none'
                     }}
                   />
                 </div>

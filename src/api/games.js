@@ -37,23 +37,8 @@ async function request(path, options = {}) {
     }
 
     if (!response.ok) {
-      // Log the error response for debugging
-      console.error('API Error Response:', {
-        status: response.status,
-        body: body,
-        url: url
-      })
-      
-      // Create an error object that includes the response body for validation errors
-      const errorMessage = typeof body === 'string' 
-        ? body 
-        : body?.message || body?.error || `Request failed with status ${response.status}`
-      
-      const error = new Error(errorMessage)
-      error.status = response.status
-      error.body = body // Attach full response body for error handling
-      error.response = { data: body, status: response.status } // For compatibility
-      throw error
+      const message = typeof body === 'string' ? body : body?.message || body?.error
+      throw new Error(message || `Request failed with status ${response.status}`)
     }
 
     return body
