@@ -12,62 +12,55 @@ const gameSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    minlength: 3,
-    maxlength: 100,
+    maxlength: 200,
   },
   league: {
     type: String,
     required: true,
     trim: true,
-    minlength: 2,
-    maxlength: 60,
+    maxlength: 100,
   },
   date: {
     type: String,
     required: true,
-    match: /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD format
+    // Removed strict format match - accept any date string
   },
   time: {
     type: String,
     required: true,
-    match: /^([01]\d|2[0-3]):[0-5]\d$/, // HH:mm format (24-hour)
+    // Removed strict format match - accept any time string
   },
   venue: {
     type: String,
     required: true,
     trim: true,
-    minlength: 3,
-    maxlength: 120,
+    maxlength: 200,
   },
   city: {
     type: String,
     required: true,
     trim: true,
-    minlength: 3,
-    maxlength: 120,
+    maxlength: 200,
   },
   price: {
     type: Number,
     required: true,
     min: 0,
-    max: 5000,
-    validate: {
-      validator: Number.isInteger,
-      message: 'Price must be a whole number',
-    },
+    max: 10000,
+    // Removed integer validation - allow decimals
   },
   imageUrl: {
     type: String,
-    required: true,
+    required: false, // Made optional
     trim: true,
-    match: /^(https?:\/\/|\/)/i, // Must start with http://, https://, or /
+    maxlength: 500,
+    // Removed strict URL pattern match
   },
   summary: {
     type: String,
     required: true,
     trim: true,
-    minlength: 10,
-    maxlength: 280,
+    maxlength: 500,
   },
 }, {
   timestamps: true, // Adds createdAt and updatedAt fields automatically

@@ -21,83 +21,77 @@ const initialFormState = {
 const validateGame = (values) => {
   const errors = {}
 
-  const trimmedTitle = values.title.trim()
+  // Title: More relaxed - just needs to exist, longer max
+  const trimmedTitle = (values.title || '').trim()
   if (!trimmedTitle) {
     errors.title = 'Matchup title is required.'
-  } else if (trimmedTitle.length < 3) {
-    errors.title = 'Title should be at least 3 characters.'
-  } else if (trimmedTitle.length > 100) {
-    errors.title = 'Title must be 100 characters or less.'
+  } else if (trimmedTitle.length > 200) {
+    errors.title = 'Title must be 200 characters or less.'
   }
 
-  const trimmedLeague = values.league.trim()
+  // League: More relaxed - just needs to exist
+  const trimmedLeague = (values.league || '').trim()
   if (!trimmedLeague) {
     errors.league = 'League is required.'
-  } else if (trimmedLeague.length < 2) {
-    errors.league = 'League must be at least 2 characters.'
-  } else if (trimmedLeague.length > 60) {
-    errors.league = 'League must be 60 characters or less.'
+  } else if (trimmedLeague.length > 100) {
+    errors.league = 'League must be 100 characters or less.'
   }
 
-  if (!values.date) {
+  // Date: More flexible - accept any date format, just needs to exist
+  if (!values.date || !values.date.trim()) {
     errors.date = 'Date is required.'
-  } else if (!DATE_REGEX.test(values.date)) {
-    errors.date = 'Use YYYY-MM-DD format.'
   }
 
-  if (!values.time) {
-    errors.time = 'Kick/tip time is required.'
-  } else if (!TIME_REGEX.test(values.time)) {
-    errors.time = 'Use 24-hour HH:mm format.'
+  // Time: More flexible - accept any time format, just needs to exist
+  if (!values.time || !values.time.trim()) {
+    errors.time = 'Time is required.'
   }
 
-  const trimmedVenue = values.venue.trim()
+  // Venue: More relaxed - just needs to exist
+  const trimmedVenue = (values.venue || '').trim()
   if (!trimmedVenue) {
     errors.venue = 'Venue is required.'
-  } else if (trimmedVenue.length < 3) {
-    errors.venue = 'Venue must be at least 3 characters.'
-  } else if (trimmedVenue.length > 120) {
-    errors.venue = 'Venue must be 120 characters or less.'
+  } else if (trimmedVenue.length > 200) {
+    errors.venue = 'Venue must be 200 characters or less.'
   }
 
-  const trimmedCity = values.city.trim()
+  // City: More relaxed - just needs to exist
+  const trimmedCity = (values.city || '').trim()
   if (!trimmedCity) {
     errors.city = 'City is required.'
-  } else if (trimmedCity.length < 3) {
-    errors.city = 'City must be at least 3 characters.'
-  } else if (trimmedCity.length > 120) {
-    errors.city = 'City must be 120 characters or less.'
+  } else if (trimmedCity.length > 200) {
+    errors.city = 'City must be 200 characters or less.'
   }
 
-  if (values.price === '') {
+  // Price: More relaxed - allow decimals, higher max, optional
+  if (values.price === '' || values.price === null || values.price === undefined) {
     errors.price = 'Price estimate is required.'
-  } else if (Number.isNaN(Number(values.price))) {
-    errors.price = 'Price must be a number.'
   } else {
     const priceNum = Number(values.price)
-    if (!Number.isInteger(priceNum)) {
-      errors.price = 'Price must be a whole number.'
+    if (Number.isNaN(priceNum)) {
+      errors.price = 'Price must be a number.'
     } else if (priceNum < 0) {
       errors.price = 'Price cannot be negative.'
-    } else if (priceNum > 5000) {
-      errors.price = 'Price must be $5000 or less.'
+    } else if (priceNum > 10000) {
+      errors.price = 'Price must be $10,000 or less.'
     }
   }
 
-  const trimmedImageUrl = values.imageUrl.trim()
-  if (!trimmedImageUrl) {
-    errors.imageUrl = 'Image URL is required.'
-  } else if (!IMG_REGEX.test(trimmedImageUrl)) {
-    errors.imageUrl = 'Image URL should start with http(s):// or /'
+  // ImageUrl: More flexible - make it optional or accept any format
+  const trimmedImageUrl = (values.imageUrl || '').trim()
+  if (trimmedImageUrl && trimmedImageUrl.length > 0) {
+    // Only validate format if provided, but be more lenient
+    if (trimmedImageUrl.length > 500) {
+      errors.imageUrl = 'Image URL must be 500 characters or less.'
+    }
   }
 
-  const trimmedSummary = values.summary.trim()
+  // Summary: More relaxed - shorter min, longer max, optional
+  const trimmedSummary = (values.summary || '').trim()
   if (!trimmedSummary) {
     errors.summary = 'Summary is required.'
-  } else if (trimmedSummary.length < 10) {
-    errors.summary = 'Summary should be at least 10 characters.'
-  } else if (trimmedSummary.length > 280) {
-    errors.summary = 'Keep the summary under 280 characters.'
+  } else if (trimmedSummary.length > 500) {
+    errors.summary = 'Summary must be 500 characters or less.'
   }
 
   return errors
@@ -105,6 +99,9 @@ const validateGame = (values) => {
 
 const normalizeTime = (timeValue) => {
   const trimmed = (timeValue || '').trim()
+  if (!trimmed) return ''
+  
+  // Try to convert 12-hour to 24-hour format if needed
   const twelveHourMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i)
   if (twelveHourMatch) {
     let [, hourStr, minute, meridiem] = twelveHourMatch
@@ -117,24 +114,35 @@ const normalizeTime = (timeValue) => {
     }
     return `${hour.toString().padStart(2, '0')}:${minute}`
   }
+  
+  // If already in HH:mm format, return as-is
+  // Otherwise, just return whatever was provided (more flexible)
   return trimmed
 }
 
 const normalizeFormData = (values) => {
   const normalized = { ...values }
-  normalized.title = values.title.trim()
-  normalized.league = values.league.trim()
-  normalized.date = values.date.trim()
-  normalized.time = normalizeTime(values.time)
-  normalized.venue = values.venue.trim()
-  normalized.city = values.city.trim()
-  normalized.price = values.price.toString().trim()
-  const rawImageUrl = values.imageUrl.trim()
-  normalized.imageUrl =
-    !/^https?:\/\//i.test(rawImageUrl) && !rawImageUrl.startsWith('/')
-      ? `/${rawImageUrl}`
-      : rawImageUrl
-  normalized.summary = values.summary.trim()
+  normalized.title = (values.title || '').trim()
+  normalized.league = (values.league || '').trim()
+  normalized.date = (values.date || '').trim()
+  normalized.time = normalizeTime(values.time || '')
+  normalized.venue = (values.venue || '').trim()
+  normalized.city = (values.city || '').trim()
+  normalized.price = values.price ? String(values.price).trim() : ''
+  
+  // ImageUrl: More flexible - accept any format, make optional
+  const rawImageUrl = (values.imageUrl || '').trim()
+  if (rawImageUrl) {
+    // Only normalize if it doesn't already start with http://, https://, or /
+    normalized.imageUrl =
+      !/^https?:\/\//i.test(rawImageUrl) && !rawImageUrl.startsWith('/')
+        ? `/${rawImageUrl}`
+        : rawImageUrl
+  } else {
+    normalized.imageUrl = '' // Allow empty imageUrl
+  }
+  
+  normalized.summary = (values.summary || '').trim()
   return normalized
 }
 

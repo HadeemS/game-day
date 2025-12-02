@@ -28,106 +28,91 @@ const checkConnection = (req, res, next) => {
 // Apply connection check to all routes
 router.use(checkConnection)
 
-// Joi validation schema - MUST match Mongoose schema and client-side validation
+// Joi validation schema - Relaxed rules for smoother processing
 const gameSchema = Joi.object({
   title: Joi.string()
     .trim()
-    .min(3)
-    .max(100)
+    .max(200)
     .required()
     .messages({
       'string.empty': 'Matchup title is required.',
-      'string.min': 'Title should be at least 3 characters.',
-      'string.max': 'Title must be 100 characters or less.',
+      'string.max': 'Title must be 200 characters or less.',
       'any.required': 'Matchup title is required.',
     }),
 
   league: Joi.string()
     .trim()
-    .min(2)
-    .max(60)
+    .max(100)
     .required()
     .messages({
       'string.empty': 'League is required.',
-      'string.min': 'League must be at least 2 characters.',
-      'string.max': 'League must be 60 characters or less.',
+      'string.max': 'League must be 100 characters or less.',
       'any.required': 'League is required.',
     }),
 
   date: Joi.string()
-    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .trim()
     .required()
     .messages({
       'string.empty': 'Date is required.',
-      'string.pattern.base': 'Use YYYY-MM-DD format.',
       'any.required': 'Date is required.',
     }),
 
   time: Joi.string()
-    .pattern(/^([01]\d|2[0-3]):[0-5]\d$/)
+    .trim()
     .required()
     .messages({
-      'string.empty': 'Kick/tip time is required.',
-      'string.pattern.base': 'Use 24-hour HH:mm format.',
-      'any.required': 'Kick/tip time is required.',
+      'string.empty': 'Time is required.',
+      'any.required': 'Time is required.',
     }),
 
   venue: Joi.string()
     .trim()
-    .min(3)
-    .max(120)
+    .max(200)
     .required()
     .messages({
       'string.empty': 'Venue is required.',
-      'string.min': 'Venue must be at least 3 characters.',
-      'string.max': 'Venue must be 120 characters or less.',
+      'string.max': 'Venue must be 200 characters or less.',
       'any.required': 'Venue is required.',
     }),
 
   city: Joi.string()
     .trim()
-    .min(3)
-    .max(120)
+    .max(200)
     .required()
     .messages({
       'string.empty': 'City is required.',
-      'string.min': 'City must be at least 3 characters.',
-      'string.max': 'City must be 120 characters or less.',
+      'string.max': 'City must be 200 characters or less.',
       'any.required': 'City is required.',
     }),
 
   price: Joi.number()
-    .integer()
     .min(0)
-    .max(5000)
+    .max(10000)
     .required()
     .messages({
       'number.base': 'Price must be a number.',
-      'number.integer': 'Price must be a whole number.',
       'number.min': 'Price cannot be negative.',
-      'number.max': 'Price must be $5000 or less.',
+      'number.max': 'Price must be $10,000 or less.',
       'any.required': 'Price estimate is required.',
     }),
 
   imageUrl: Joi.string()
     .trim()
-    .pattern(/^(https?:\/\/|\/)/i)
-    .required()
+    .max(500)
+    .allow('')
+    .optional()
     .messages({
-      'string.empty': 'Image URL is required.',
-      'string.pattern.base': 'Image URL should start with http(s):// or /',
-      'any.required': 'Image URL is required.',
+      'string.max': 'Image URL must be 500 characters or less.',
     }),
 
   summary: Joi.string()
     .trim()
-    .min(10)
-    .max(280)
+    .max(500)
     .required()
     .messages({
       'string.empty': 'Summary is required.',
-      'string.min': 'Summary should be at least 10 characters.',
-      'string.max': 'Keep the summary under 280 characters.',
+      'string.max': 'Summary must be 500 characters or less.',
       'any.required': 'Summary is required.',
     }),
 })
