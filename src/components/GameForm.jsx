@@ -207,12 +207,16 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
   const handleSubmit = async (event) => {
     event.preventDefault()
     
+    // Normalize date and time before creating payload
+    const normalizedDate = normalizeDate(formData.date)
+    const normalizedTime = normalizeTime(formData.time)
+    
     // Prepare payload with proper data types and trimming
     const payload = {
       title: formData.title.trim(),
       league: formData.league.trim(),
-      date: formData.date.trim(), // Should be YYYY-MM-DD
-      time: formData.time.trim(), // Should be HH:mm (24-hour)
+      date: normalizedDate, // Normalized to YYYY-MM-DD
+      time: normalizedTime, // Normalized to HH:mm (24-hour)
       venue: formData.venue.trim(),
       city: formData.city.trim(),
       price: Number(formData.price), // Convert to number
@@ -222,6 +226,14 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
 
     // Validate the payload
     const errors = validateGame(payload)
+    
+    // Additional validation: ensure date and time are not empty after normalization
+    if (!payload.date) {
+      errors.date = 'Date is required and must be in YYYY-MM-DD format.'
+    }
+    if (!payload.time) {
+      errors.time = 'Time is required and must be in HH:mm format (24-hour).'
+    }
 
     if (Object.keys(errors).length) {
       setFormErrors(errors)
@@ -232,14 +244,25 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
     setSubmitting(true)
 
     try {
-      // Log payload in development for debugging
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Submitting payload:', payload)
-      }
+      // Log payload for debugging (always log to help diagnose)
+      console.log('📤 Submitting payload:', JSON.stringify(payload, null, 2))
+      console.log('📤 Payload types:', {
+        title: typeof payload.title,
+        league: typeof payload.league,
+        date: typeof payload.date + ' = ' + payload.date,
+        time: typeof payload.time + ' = ' + payload.time,
+        venue: typeof payload.venue,
+        city: typeof payload.city,
+        price: typeof payload.price + ' = ' + payload.price,
+        imageUrl: typeof payload.imageUrl,
+        summary: typeof payload.summary,
+      })
 
       const responseData = isEditMode
         ? await updateGame(game._id || game.id, payload)
         : await createGame(payload)
+      
+      console.log('✅ Success! Response:', responseData)
 
       if (!isEditMode) {
         setFormData(initialFormState)
@@ -255,30 +278,55 @@ export default function GameForm({ game = null, onSuccess, onError, onCancel }) 
       }
     } catch (error) {
       console.error('Form submission error:', error)
+      console.error('Error body:', error.body)
+      console.error('Error response:', error.response)
       
       // Try to extract server-side validation errors
       let serverErrors = {}
       let errorMessage = error.message || (isEditMode ? 'Unable to update game.' : 'Unable to save game.')
       
-      // Check if error has a response with validation errors
-      if (error.response || (error.body && error.body.errors)) {
-        const errors = error.response?.data?.errors || error.body?.errors || []
-        if (Array.isArray(errors) && errors.length > 0) {
-          // Map server errors to form fields
-          errors.forEach((err) => {
-            if (err.field) {
-              serverErrors[err.field] = err.message
-            }
-          })
-          setFormErrors(serverErrors)
-          errorMessage = 'Please fix the validation errors below.'
+      // Check multiple possible error response formats
+      let validationErrors = []
+      
+      if (error.body) {
+        // Check if body has errors array
+        if (Array.isArray(error.body.errors)) {
+          validationErrors = error.body.errors
+        } else if (error.body.error && Array.isArray(error.body.error)) {
+          validationErrors = error.body.error
         }
       }
       
+      if (error.response?.data) {
+        if (Array.isArray(error.response.data.errors)) {
+          validationErrors = error.response.data.errors
+        } else if (error.response.data.error && Array.isArray(error.response.data.error)) {
+          validationErrors = error.response.data.error
+        }
+      }
+      
+      // Map server errors to form fields
+      if (validationErrors.length > 0) {
+        validationErrors.forEach((err) => {
+          const fieldName = err.field || err.path || err.key
+          const fieldMessage = err.message || err.msg
+          if (fieldName && fieldMessage) {
+            serverErrors[fieldName] = fieldMessage
+          }
+        })
+        
+        if (Object.keys(serverErrors).length > 0) {
+          setFormErrors(serverErrors)
+          errorMessage = 'Please fix the validation errors highlighted below.'
+        }
+      }
+      
+      // If we have validation errors, show them; otherwise show generic message
       setStatus({
         type: 'error',
         message: errorMessage,
       })
+      
       if (onError) {
         onError(error)
       }

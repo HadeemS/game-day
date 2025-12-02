@@ -37,8 +37,19 @@ async function request(path, options = {}) {
     }
 
     if (!response.ok) {
+      // Log the error response for debugging
+      console.error('API Error Response:', {
+        status: response.status,
+        body: body,
+        url: url
+      })
+      
       // Create an error object that includes the response body for validation errors
-      const error = new Error(typeof body === 'string' ? body : body?.message || body?.error || `Request failed with status ${response.status}`)
+      const errorMessage = typeof body === 'string' 
+        ? body 
+        : body?.message || body?.error || `Request failed with status ${response.status}`
+      
+      const error = new Error(errorMessage)
       error.status = response.status
       error.body = body // Attach full response body for error handling
       error.response = { data: body, status: response.status } // For compatibility
