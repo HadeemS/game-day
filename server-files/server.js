@@ -24,22 +24,6 @@ app.use(express.json())
 // Routes
 app.use('/api/games', gamesRoutes)
 
-// Root route
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Game Day API - MongoDB Version',
-    endpoints: {
-      'GET /api/games': 'Get all games',
-      'GET /api/games/:id': 'Get a single game',
-      'POST /api/games': 'Create a new game',
-      'PUT /api/games/:id': 'Update a game',
-      'DELETE /api/games/:id': 'Delete a game',
-    },
-    database: 'MongoDB (Mongoose)',
-    validation: 'Joi + Mongoose',
-  })
-})
-
 // Health check route (useful for Render)
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', database: db.readyState === 1 ? 'connected' : 'disconnected' })

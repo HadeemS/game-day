@@ -37,8 +37,12 @@ async function request(path, options = {}) {
     }
 
     if (!response.ok) {
-      const message = typeof body === 'string' ? body : body?.message || body?.error
-      throw new Error(message || `Request failed with status ${response.status}`)
+      // Create an error object that includes the response body for validation errors
+      const error = new Error(typeof body === 'string' ? body : body?.message || body?.error || `Request failed with status ${response.status}`)
+      error.status = response.status
+      error.body = body // Attach full response body for error handling
+      error.response = { data: body, status: response.status } // For compatibility
+      throw error
     }
 
     return body
